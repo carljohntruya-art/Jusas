@@ -60,7 +60,7 @@ const ProductDetails = () => {
     // Simulate network delay for effect
     setTimeout(() => {
         addItem({
-            id: product.id,
+            productId: product.id,
             name: product.name,
             price: product.price,
             imageUrl: product.imageUrl,

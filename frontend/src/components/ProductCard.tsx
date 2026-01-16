@@ -85,7 +85,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       // We don't decrement stock here, just add to cart.
       // Ideally validation happens at checkout.
       addItem({
-          id: product.id,
+          productId: product.id,
           name: product.name,
           price: product.price,
           quantity: 1,
