@@ -1,12 +1,13 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { AuthRequest } from '../types';
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: AuthRequest, res: Response) => {
   try {
     const { email, password, name } = req.body;
     
@@ -46,7 +47,7 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: AuthRequest, res: Response) => {
   console.log('Backend: Login attempt for', req.body.email);
   try {
     const { email, password } = req.body;
@@ -89,12 +90,12 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const logout = (req: Request, res: Response) => {
+export const logout = (req: AuthRequest, res: Response) => {
     res.clearCookie('token');
     res.json({ message: 'Logged out' });
 };
 
-export const me = (req: Request, res: Response) => {
+export const me = (req: AuthRequest, res: Response) => {
    // User is attached by middleware
    res.json({ user: req.user });
 };

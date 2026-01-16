@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { CartItemInput, AuthRequest } from '../types';
 
 const prisma = new PrismaClient();
 
 // Get User Cart
-export const getCart = async (req: Request, res: Response) => {
+export const getCart = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
@@ -46,7 +47,7 @@ export const getCart = async (req: Request, res: Response) => {
 };
 
 // Add to Cart
-export const addToCart = async (req: Request, res: Response) => {
+export const addToCart = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user?.id;
         const { productId, quantity } = req.body;
@@ -83,7 +84,7 @@ export const addToCart = async (req: Request, res: Response) => {
 };
 
 // Update Cart Item
-export const updateCartItem = async (req: Request, res: Response) => {
+export const updateCartItem = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user?.id;
         const { id } = req.params; // CartItem ID
@@ -117,7 +118,7 @@ export const updateCartItem = async (req: Request, res: Response) => {
 };
 
 // Remove Cart Item
-export const removeFromCart = async (req: Request, res: Response) => {
+export const removeFromCart = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user?.id;
         const { id } = req.params;
@@ -141,7 +142,7 @@ export const removeFromCart = async (req: Request, res: Response) => {
 };
 
 // Merge Guest Cart
-export const mergeCart = async (req: Request, res: Response) => {
+export const mergeCart = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
     const { guestCart } = req.body; // Array of {productId, quantity}
@@ -163,9 +164,9 @@ export const mergeCart = async (req: Request, res: Response) => {
     
     if (guestCart && Array.isArray(guestCart)) {
         // Merge guest cart items into user cart
-        for (const guestItem of guestCart) {
+        for (const guestItem of guestCart as CartItemInput[]) {
             const existingItem = userCart.items.find(
-                item => item.productId === guestItem.productId
+                (item) => item.productId === guestItem.productId
             );
             
             if (existingItem) {

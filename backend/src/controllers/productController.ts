@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { AuthRequest } from '../types';
 
 const prisma = new PrismaClient();
 
-export const getProducts = async (req: Request, res: Response) => {
+export const getProducts = async (req: AuthRequest, res: Response) => {
   try {
     const { featured, bestseller } = req.query;
 
@@ -26,7 +27,7 @@ export const getProducts = async (req: Request, res: Response) => {
   }
 };
 
-export const getProductById = async (req: Request, res: Response) => {
+export const getProductById = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const product = await prisma.product.findUnique({
@@ -45,7 +46,7 @@ export const getProductById = async (req: Request, res: Response) => {
 };
 
 // Create Product
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (req: AuthRequest, res: Response) => {
   try {
     const { name, description, price, stock, imageUrl, isFeatured } = req.body;
     const product = await prisma.product.create({
@@ -65,7 +66,7 @@ export const createProduct = async (req: Request, res: Response) => {
 };
 
 // Update Product
-export const updateProduct = async (req: Request, res: Response) => {
+export const updateProduct = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { name, description, price, stock, imageUrl, isFeatured } = req.body;
@@ -87,7 +88,7 @@ export const updateProduct = async (req: Request, res: Response) => {
 };
 
 // Delete Product
-export const deleteProduct = async (req: Request, res: Response) => {
+export const deleteProduct = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     await prisma.product.delete({ where: { id: Number(id) } });
@@ -98,7 +99,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
 };
 
 // Feature Toggle
-export const featureProduct = async (req: Request, res: Response) => {
+export const featureProduct = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const product = await prisma.product.findUnique({ where: { id: Number(id) } });
@@ -117,7 +118,7 @@ export const featureProduct = async (req: Request, res: Response) => {
 };
 
 // Duplicate Product
-export const duplicateProduct = async (req: Request, res: Response) => {
+export const duplicateProduct = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const original = await prisma.product.findUnique({ where: { id: Number(id) } });
@@ -139,7 +140,7 @@ export const duplicateProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const updateStock = async (req: Request, res: Response) => {
+export const updateStock = async (req: AuthRequest, res: Response) => {
   try {
     const { operation, amount = 1 } = req.body;
     const { id } = req.params;

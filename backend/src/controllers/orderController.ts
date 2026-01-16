@@ -1,27 +1,28 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { AuthRequest, TransactionClient, CartItemInput } from '../types';
 
 const prisma = new PrismaClient();
 
 // Create Order (Transactional)
-export const createOrder = async (req: Request, res: Response) => {
+export const createOrder = async (req: AuthRequest, res: Response) => {
   try {
     const { items, total, paymentMethod, userId, shippingAddress, contactNumber, paymentProof, deliveryTime } = req.body;
 
     // Start Transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: TransactionClient) => {
         // 1. Check stock for all items
-        for (const item of items) {
-           const product = await tx.product.findUnique({ where: { id: item.id } });
+        for (const item of items as CartItemInput[]) {
+           const product = await tx.product.findUnique({ where: { id: item.productId } });
            if (!product || product.stock < item.quantity) {
-               throw new Error(`Insufficient stock for product: ${item.name}`);
+               throw new Error(`Insufficient stock for product: ${item.name || 'Unknown'}`);
            }
         }
 
         // 2. Deduct Stock & Increment Sold
-        for (const item of items) {
+        for (const item of items as CartItemInput[]) {
             await tx.product.update({
-                where: { id: item.id },
+                where: { id: item.productId },
                 data: {
                     stock: { decrement: item.quantity },
                     totalSold: { increment: item.quantity }
@@ -41,8 +42,8 @@ export const createOrder = async (req: Request, res: Response) => {
                 userId: userId || null, // Allow guest if not provided (though frontend should enforce)
                 status: 'PENDING',
                 items: {
-                    create: items.map((item: any) => ({
-                        productId: item.id,
+                    create: items.map((item: CartItemInput) => ({
+                        productId: item.productId,
                         quantity: item.quantity,
                         price: item.price
                     }))
@@ -62,7 +63,7 @@ export const createOrder = async (req: Request, res: Response) => {
 };
 
 // Get Orders (Admin or User History)
-export const getOrders = async (req: Request, res: Response) => {
+export const getOrders = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.user?.id;
         const role = req.user?.role;
@@ -98,7 +99,7 @@ export const getOrders = async (req: Request, res: Response) => {
 };
 
 // Update Order Status (Admin)
-export const updateOrderStatus = async (req: Request, res: Response) => {
+export const updateOrderStatus = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
         const { status, declineReason } = req.body; // APPROVED, DELIVERED, CANCELLED
@@ -114,7 +115,7 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     }
 };
 
-export const getOrderById = async (req: Request, res: Response) => {
+export const getOrderById = async (req: AuthRequest, res: Response) => {
   try {
     const orderId = parseInt(req.params.id);
     const userId = req.user?.id;
@@ -141,8 +142,6 @@ export const getOrderById = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Order not found' });
     }
     
-    // Check ownership
-    // @ts-ignore
     if (!isAdmin && order.userId !== userId) {
       return res.status(403).json({ 
         error: 'Access denied: You can only view your own orders' 
