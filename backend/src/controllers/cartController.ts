@@ -166,7 +166,7 @@ export const mergeCart = async (req: AuthRequest, res: Response) => {
         // Merge guest cart items into user cart
         for (const guestItem of guestCart as CartItemInput[]) {
             const existingItem = userCart.items.find(
-                (item) => item.productId === guestItem.productId
+                (item: { productId: number; id: number; quantity: number }) => item.productId === guestItem.productId
             );
             
             if (existingItem) {

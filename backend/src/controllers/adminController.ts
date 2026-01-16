@@ -11,7 +11,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response) => {
             where: { status: { not: 'CANCELLED' } },
             select: { total: true }
         });
-        const totalRevenue = orders.reduce((acc: number, order) => acc + order.total, 0);
+        const totalRevenue = orders.reduce((acc: number, order: { total: number }) => acc + order.total, 0);
 
         // 2. Total Orders
         const totalOrders = await prisma.order.count();
@@ -37,7 +37,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response) => {
 
         // Group by Date for Chart
         const salesByDate: Record<string, number> = {};
-        recentOrders.forEach((order) => {
+        recentOrders.forEach((order: { createdAt: Date; total: number }) => {
             const date = order.createdAt.toISOString().split('T')[0]; // YYYY-MM-DD
             salesByDate[date] = (salesByDate[date] || 0) + order.total;
         });
