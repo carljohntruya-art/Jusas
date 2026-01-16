@@ -1,377 +1,126 @@
-# Phase 4: GitHub Push & Vercel Deployment Guide
+# 🌴 Jusas Monorepo: Full Vercel Deployment Guide
 
-## Overview
-
-This guide provides step-by-step instructions for pushing your JUSAS project to GitHub and deploying to Vercel.
+This guide provides a production-grade, step-by-step walkthrough to deploy the **Jusas Smoothie E-commerce** app to Vercel.
 
 ---
 
-## Prerequisites Check
+## 📋 1. Pre-Deployment Checklist
 
-Before proceeding, verify:
+Before starting, ensure you have:
 
-- ✅ Phases 1-3 completed (Git initialized, code committed)
-- ✅ GitHub account with repository created: `https://github.com/carljohntruya-art/Jusas`
-- ✅ Vercel account created at [vercel.com](https://vercel.com)
+- [ ] A **GitHub** account with your code pushed to a repository.
+- [ ] A **Vercel** account (linked to GitHub).
+- [ ] A **PostgreSQL** database (Recommended: [Neon.tech](https://neon.tech/) or Supabase for free tiers).
+- [ ] **Node.js 18+** configured in your environment.
 
----
+### Required Files in Root:
 
-## Step 1: Connect to GitHub Repository
-
-### 1.1 Add GitHub Remote
-
-```bash
-git remote add origin https://github.com/carljohntruya-art/Jusas.git
-
-# Verify remote was added
-git remote -v
-```
-
-**Expected output:**
-
-```
-origin  https://github.com/carljohntruya-art/Jusas.git (fetch)
-origin  https://github.com/carljohntruya-art/Jusas.git (push)
-```
-
-### 1.2 Push to GitHub
-
-```bash
-# Push main branch to GitHub
-git push -u origin main
-```
-
-**If you encounter authentication issues:**
-
-- **HTTPS**: You'll need a Personal Access Token (PAT) from GitHub Settings > Developer settings > Personal access tokens
-- **SSH**: Set up SSH keys following [GitHub's SSH guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
-
-### 1.3 Verify on GitHub
-
-1. Visit `https://github.com/carljohntruya-art/Jusas`
-2. Confirm files are visible
-3. Check that README.md displays correctly
+- `vercel.json`: Handles routing between Frontend and Backend.
+- `package.json`: Contains root-level scripts.
+- `frontend/package.json`: Contains Vite build scripts.
+- `backend/package.json`: Contains Prisma and Express build scripts.
 
 ---
 
-## Step 2: Deploy to Vercel
+## 🐘 2. Database Setup (Neon.tech)
 
-### Option A: Vercel Dashboard (Recommended for First Deployment)
+Vercel deployment requires a real database. We use **Neon.tech** as it integrates perfectly.
 
-#### 2.1 Import Project
-
-1. Go to [vercel.com/dashboard](https://vercel.com/dashboard)
-2. Click **"Add New..."** → **"Project"**
-3. Click **"Import Git Repository"**
-4. Select your **GitHub account** and choose **`Jusas`** repository
-5. Click **"Import"**
-
-#### 2.2 Configure Project Settings
-
-**Framework Preset:** Other (or leave as detected)
-
-**Root Directory:** Leave as `./` (root)
-
-**Build Command:**
-
-```bash
-npm run build
-```
-
-**Output Directory:**
-
-```
-frontend/dist
-```
-
-**Install Command:**
-
-```bash
-npm install
-```
-
-#### 2.3 Add Environment Variables
-
-Click **"Environment Variables"** and add these:
-
-| Name             | Value                          | Notes                                       |
-| ---------------- | ------------------------------ | ------------------------------------------- |
-| `NODE_ENV`       | `production`                   | Required                                    |
-| `DATABASE_URL`   | `postgresql://...`             | Get from Vercel Postgres (see Step 3)       |
-| `DIRECT_URL`     | `postgresql://...`             | Get from Vercel Postgres                    |
-| `JWT_SECRET`     | `<generate-64-char-string>`    | Use a password generator                    |
-| `JWT_EXPIRE`     | `7d`                           | Token expiration                            |
-| `FRONTEND_URL`   | `https://jusas.vercel.app`     | Your Vercel URL (update after first deploy) |
-| `API_URL`        | `https://jusas.vercel.app/api` | Your API URL                                |
-| `GCASH_NUMBER`   | `0917-XXX-XXXX`                | Your GCash number                           |
-| `CONTACT_NUMBER` | `0918-XXX-XXXX`                | Business contact                            |
-| `BUSINESS_NAME`  | `JUSAS Tropical Smoothies`     | Business name                               |
-
-**To generate JWT_SECRET:**
-
-```bash
-# PowerShell
--join ((48..57) + (65..90) + (97..122) | Get-Random -Count 64 | % {[char]$_})
-```
-
-#### 2.4 Deploy
-
-Click **"Deploy"** and wait for build to complete (~2-5 minutes)
+1.  **Create a Neon Account**: Go to [Neon.tech](https://neon.tech/) and create a new project called `jusas-db`.
+2.  **Get Connection String**: Copy the `DATABASE_URL`. It should look like:
+    `postgres://user:password@hostname/neondb?sslmode=require`
+3.  **Direct Connection URL**: Copy the "Pooled" or "Direct" URL for Prisma.
 
 ---
 
-### Option B: Vercel CLI
+## 🚀 3. Vercel Project Configuration
 
-#### 2.1 Install Vercel CLI
+### Step 3.1: Import Project
 
-```bash
-npm install -g vercel
-```
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard) and click **"Add New" > "Project"**.
+2. Select your **Jusas** repository.
 
-#### 2.2 Login
+### Step 3.2: Project Settings (CRITICAL)
 
-```bash
-vercel login
-```
+- **Framework Preset**: Other (or Vite).
+- **Root Directory**: Leave as `.` (Root).
+- **Build Command**: `npm run build`
+- **Output Directory**: `frontend/dist`
+- **Install Command**: `npm install`
 
-Follow prompts to authenticate
+### Step 3.3: Environment Variables
 
-#### 2.3 Deploy to Preview
+Add the following variables in the Vercel Dashboard under **Settings > Environment Variables**:
 
-```bash
-vercel
-```
-
-This creates a preview deployment for testing
-
-#### 2.4 Deploy to Production
-
-```bash
-vercel --prod
-```
-
-#### 2.5 Add Environment Variables via CLI
-
-```bash
-# Add each variable
-vercel env add DATABASE_URL production
-vercel env add JWT_SECRET production
-# ... repeat for all variables
-```
+| Variable       | Description                           | Example/Value                           |
+| :------------- | :------------------------------------ | :-------------------------------------- |
+| `DATABASE_URL` | Prisma Connection String              | `postgres://user:pass@host/db...`       |
+| `JWT_SECRET`   | Secret for Authentication             | `yoursupersecretphrase123`              |
+| `FRONTEND_URL` | Your Vercel URL (Update after deploy) | `https://jusas-smoothie.vercel.app`     |
+| `API_URL`      | Your Vercel URL + /api                | `https://jusas-smoothie.vercel.app/api` |
+| `NODE_ENV`     | Environment Type                      | `production`                            |
 
 ---
 
-## Step 3: Set Up Vercel Postgres Database
+## 📦 4. Build & Deployment Execution
 
-### 3.1 Create Database
+Vercel will run the following automatically based on our `vercel-build` scripts:
 
-1. In Vercel dashboard, go to your project
-2. Click **"Storage"** tab
-3. Click **"Create Database"**
-4. Select **"Postgres"**
-5. Choose region (same as deployment for best performance)
-6. Database name: `jusas-database`
-7. Click **"Create"**
-
-### 3.2 Connect Database to Project
-
-1. Click **"Connect to Project"**
-2. Select your **Jusas** project
-3. Vercel will automatically add `DATABASE_URL` and `DIRECT_URL` to environment variables
-
-### 3.3 Run Database Migrations
-
-After database is connected, run migrations:
-
-```bash
-# Using Vercel CLI
-vercel env pull .env.local
-cd backend
-npx prisma migrate deploy
-npx prisma db seed
-```
-
-**Or via Vercel dashboard:**
-
-1. Go to **Settings** → **Functions**
-2. Create a one-time serverless function to run migrations
-3. Or use Vercel's built-in database migration feature
+1.  **Framework Setup**: Vercel detects the root `package.json`.
+2.  **Build Stage**:
+    - Runs `npx prisma generate` in the backend to prepare the database client.
+    - Runs `tsc && vite build` in the frontend to generate the static files.
+3.  **Serverless Routing**:
+    - Requests to `/api/*` are routed to `backend/src/index.ts` (mapped in `vercel.json`).
+    - All other requests serve the React app from `frontend/dist`.
 
 ---
 
-## Step 4: Verify Deployment
+## 🛠️ 5. Database Migrations (Manual First Step)
 
-### 4.1 Check Deployment Status
+Because it's a new database, you must push the schema:
 
-1. Go to Vercel dashboard → **Deployments**
-2. Click on latest deployment
-3. Check **Build Logs** for any errors
-
-### 4.2 Test Endpoints
-
-**Homepage:**
-
-```bash
-curl https://jusas.vercel.app
-```
-
-**API Health Check:**
-
-```bash
-curl https://jusas.vercel.app/api
-```
-
-Should return: `{"message": "Jusas Tropical Smoothie API is running 🌴"}`
-
-**Products Endpoint:**
-
-```bash
-curl https://jusas.vercel.app/api/products
-```
-
-### 4.3 Manual Testing Checklist
-
-Open `https://jusas.vercel.app` and test:
-
-**Customer Flow:**
-
-- [ ] Homepage loads with correct styling
-- [ ] Products display correctly
-- [ ] User registration works
-- [ ] User login works
-- [ ] Add to cart (requires login)
-- [ ] Checkout process
-- [ ] Order placement (GCash/COD)
-
-**Admin Flow:**
-
-- [ ] Admin login (`admin@smoothie.local` / `Admin123!`)
-- [ ] Dashboard displays
-- [ ] Product management (CRUD)
-- [ ] Order management
-- [ ] Analytics display
+1.  **On your local machine**, point your `.env` to the Neon `DATABASE_URL`.
+2.  Run:
+    ```bash
+    cd backend
+    npx prisma migrate deploy
+    npx prisma db seed
+    ```
+    _This creates the tables and seeds the admin user/products into your production DB._
 
 ---
 
-## Step 5: Set Up CI/CD (Automatic Deployments)
+## 🧐 6. Common Errors & Fixes
 
-### 5.1 Connect GitHub to Vercel
-
-This should be automatic if you imported via GitHub, but verify:
-
-1. Go to **Project Settings** → **Git**
-2. Confirm GitHub repository is connected
-3. Check **Production Branch** is set to `main`
-
-### 5.2 Configure Auto-Deploy
-
-Under **Git** settings:
-
-- ✅ **Auto-deploy:** Enabled
-- ✅ **Deploy on Push:** main branch
-- ✅ **Deploy Preview:** Pull requests
-
-### 5.3 Test Auto-Deploy
-
-Make a small change and push:
-
-```bash
-# Make a minor change to README
-echo "Deployed at $(date)" >> README.md
-git add README.md
-git commit -m "Test auto-deploy"
-git push origin main
-```
-
-Watch Vercel dashboard for automatic deployment
+| Issue                         | Cause                            | Fix                                                                        |
+| :---------------------------- | :------------------------------- | :------------------------------------------------------------------------- |
+| **401 Unauthorized**          | `JWT_SECRET` mismatch or missing | Ensure `JWT_SECRET` in Vercel matches your encryption logic.               |
+| **Prisma Client Not Found**   | Missing `prisma generate`        | Ensure `backend/package.json` has `"vercel-build": "npx prisma generate"`. |
+| **500 Internal Server Error** | Missing `DATABASE_URL`           | Check Vercel logs for missing connection metadata.                         |
+| **CORS Errors**               | `FRONTEND_URL` incorrect         | Ensure the backend `cors` config uses the exact Vercel domain.             |
 
 ---
 
-## Step 6: Post-Deployment Configuration
+## ✅ 7. Final Verification
 
-### 6.1 Set Custom Domain (Optional)
-
-1. Go to **Settings** → **Domains**
-2. Add your custom domain
-3. Follow DNS configuration instructions
-
-### 6.2 Update README with Live URL
-
-```bash
-# Edit README.md to update the Live Demo section
-# Replace placeholder URLs with actual deployment URL
-```
-
-### 6.3 Configure Monitoring
-
-1. Go to **Analytics** tab
-2. Enable **Web Analytics**
-3. Enable **Speed Insights**
+1.  **Visit Site**: `https://your-project.vercel.app`.
+2.  **Test API**: Visit `https://your-project.vercel.app/api`. You should see `{"message": "Jusas Tropical Smoothie API is running 🌴"}`.
+3.  **Admin Test**:
+    - Login at `/login` as admin.
+    - Go to `/admin/dashboard`.
+    - Verify charts and product lists load.
+4.  **Order Flow**:
+    - Add a smoothie to cart.
+    - Checkout as guest or logged-in user.
+    - Verify transition to "Success" page.
 
 ---
 
-## Troubleshooting
+### 💡 Backend Strategy (Vercel Node)
 
-### Build Fails
+Vercel converts your `backend/src/index.ts` into a **Serverless Function**.
 
-- Check **Build Logs** in Vercel dashboard
-- Ensure all dependencies are in `package.json`
-- Verify `vercel-build` scripts exist
-
-### Database Connection Errors
-
-- Verify `DATABASE_URL` is set in environment variables
-- Check database region matches deployment region
-- Run `npx prisma generate` in build command
-
-### CORS Errors
-
-- Verify `FRONTEND_URL` environment variable
-- Check backend CORS configuration uses env var
-
-### 404 on API Routes
-
-- Verify `vercel.json` routes configuration
-- Check backend is building successfully
-- Ensure `api/index.js` exports app correctly
-
----
-
-## Success Criteria
-
-✅ GitHub repository has all code
-✅ Vercel deployment successful
-✅ Database connected and seeded
-✅ Homepage loads at `https://jusas.vercel.app`
-✅ API responds at `https://jusas.vercel.app/api`
-✅ User registration/login works
-✅ Admin dashboard accessible
-✅ Auto-deploy on push works
-
----
-
-## Next Steps After Deployment
-
-1. **Update live URLs** in README.md
-2. **Create demo video** showcasing features
-3. **Monitor analytics** for errors
-4. **Set up error tracking** (e.g., Sentry)
-5. **Configure uptime monitoring** (e.g., UptimeRobot)
-
----
-
-## Support Commands
-
-```bash
-# Check deployment status
-vercel ls
-
-# View deployment logs
-vercel logs <deployment-url>
-
-# Rollback to previous deployment
-vercel rollback
-
-# Re-deploy with force rebuild
-vercel --prod --force
-```
+- **CORS**: Handled in `index.ts` using the `cors` package.
+- **Sessions**: Not used! We use **JWT in Cookies** for stateless authentication.
+- **Uploads**: Files are stored in the `uploads` folder. _Note: Vercel functions have ephemeral storage. For production images, use S3/Cloudinary in Phase 5._
