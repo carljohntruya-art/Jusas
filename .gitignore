@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Build outputs
+dist/
+build/
+.frontend/build/
+.backend/dist/
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads
+uploads/
+tmp/
+temp/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Misc
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Prisma
+backend/prisma/migrations/dev.db
+backend/prisma/migrations/dev.db-journal
