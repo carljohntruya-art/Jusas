@@ -74,7 +74,7 @@ const OrderHistoryPage = () => {
 
                                 <div className="space-y-2 mb-4">
                                     {order.items.map((item: any) => (
-                                        <div key={item.id} className="flex justify-between items-center">
+                                        <div key={item.productId || item.id} className="flex justify-between items-center">
                                             <div className="flex items-center gap-3">
                                                  <img src={item.product?.imageUrl} className="w-10 h-10 rounded-lg bg-gray-100 object-cover" />
                                                  <span className="text-sm font-medium">{item.product?.name || 'Product'} <span className="text-text/40">x{item.quantity}</span></span>

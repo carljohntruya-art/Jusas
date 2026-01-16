@@ -43,7 +43,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (currentCartItems.length > 0) {
         // Map frontend items to simplified format for merge
         const guestCart = currentCartItems.map(item => ({
-             productId: item.productId || item.id, // Handle legacy 'id'
+             productId: item.productId,
              quantity: item.quantity
         }));
         

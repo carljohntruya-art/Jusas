@@ -6,7 +6,7 @@ import { useAuthStore } from './useAuthStore';
 const API_URL = 'http://localhost:3000/api/cart';
 
 export interface CartItem {
-  cartItemId?: number; // Backend ID
+  cartItemId?: number;
   productId: number;
   name: string;
   price: number;

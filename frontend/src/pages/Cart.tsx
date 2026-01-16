@@ -140,7 +140,7 @@ const Cart = () => {
                 {items.map((item) => (
                     <motion.div 
                       layout
-                      key={item.id} 
+                      key={item.productId} 
                       className="bg-white rounded-3xl p-4 shadow-card flex items-center gap-4"
                     >
                         <div className="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0">
@@ -154,11 +154,11 @@ const Cart = () => {
 
                         <div className="flex items-center gap-3">
                              <div className="flex items-center border border-secondary/20 rounded-full px-3 py-1 space-x-3">
-                                <button onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))} className="text-text/60 hover:text-primary"><Minus size={16}/></button>
+                                <button onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1))} className="text-text/60 hover:text-primary"><Minus size={16}/></button>
                                 <span className="font-bold text-sm w-4 text-center">{item.quantity}</span>
-                                <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="text-text/60 hover:text-primary"><Plus size={16}/></button>
+                                <button onClick={() => updateQuantity(item.productId, item.quantity + 1)} className="text-text/60 hover:text-primary"><Plus size={16}/></button>
                              </div>
-                             <button onClick={() => removeItem(item.id)} className="p-2 text-error/60 hover:text-error hover:bg-error/10 rounded-full transition-colors">
+                             <button onClick={() => removeItem(item.productId)} className="p-2 text-error/60 hover:text-error hover:bg-error/10 rounded-full transition-colors">
                                  <Trash2 size={20} />
                              </button>
                         </div>
