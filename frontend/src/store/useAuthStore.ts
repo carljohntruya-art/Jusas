@@ -76,10 +76,28 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     try {
       await apiClient.post(`${AUTH_ROUTE}/logout`);
-      set({ user: null, isAuthenticated: false });
-      useCartStore.getState().clearCart(); // Clear sensitive user cart data
     } catch (error) {
-      console.error('Logout failed', error);
+      console.warn('Logout API call failed, but clearing local state');
+    } finally {
+      // ALWAYS clear local state
+      set({ user: null, isAuthenticated: false });
+      useCartStore.getState().clearCart();
+      localStorage.removeItem('auth_user');
+      
+      // Clear any other auth-related storage
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      
+      // Only force reload if on a protected page
+      const protectedPaths = ['/admin', '/orders', '/cart', '/account'];
+      const currentPath = window.location.pathname;
+      
+      if (protectedPaths.some(path => currentPath.startsWith(path))) {
+        // On protected page → force reload to home
+        window.location.href = '/';
+      } else {
+        // On public page → just redirect
+        window.location.href = '/';
+      }
     }
   },
 

@@ -105,7 +105,7 @@ const Cart = () => {
 
         showToast(`Order Placed Successfully! ID: ${res.data.id}`, 'success');
         clearCart();
-        navigate('/order-history'); // Redirect to history
+        navigate('/orders'); // Redirect to history
     } catch (error) {
         showToast("Failed to place order. Please try again.", 'error');
     } finally {
