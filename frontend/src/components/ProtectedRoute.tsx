@@ -15,20 +15,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   redirectTo = ROUTES.LOGIN
 }) => {
   const location = useLocation();
-  const { isAuthenticated, user, isLoading } = useAuthStore();
-  const [isChecking, setIsChecking] = useState(true);
+  const { isAuthenticated, user, isLoading, checkAuth } = useAuthStore();
+  const [verifying, setVerifying] = useState(true);
 
   useEffect(() => {
-    // Small delay to ensure auth store is initialized
-    const timer = setTimeout(() => {
-      setIsChecking(false);
-    }, 100);
+    // CRITICAL: Re-verify auth on EVERY navigation to this route
+    const verify = async () => {
+      setVerifying(true);
+      await checkAuth();
+      setVerifying(false);
+    };
+    
+    verify();
+  }, [location.pathname, checkAuth]); // Re-run when route changes
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Show loading state
-  if (isLoading || isChecking) {
+  // Show loading state while verifying
+  if (isLoading || verifying) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>

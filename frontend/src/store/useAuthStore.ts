@@ -74,31 +74,26 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    try {
-      await apiClient.post(`${AUTH_ROUTE}/logout`);
-    } catch (error) {
-      console.warn('Logout API call failed, but clearing local state');
-    } finally {
-      // ALWAYS clear local state
-      set({ user: null, isAuthenticated: false });
-      useCartStore.getState().clearCart();
-      localStorage.removeItem('auth_user');
-      
-      // Clear any other auth-related storage
-      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      
-      // Only force reload if on a protected page
-      const protectedPaths = ['/admin', '/orders', '/cart', '/account'];
-      const currentPath = window.location.pathname;
-      
-      if (protectedPaths.some(path => currentPath.startsWith(path))) {
-        // On protected page → force reload to home
-        window.location.href = '/';
-      } else {
-        // On public page → just redirect
-        window.location.href = '/';
-      }
-    }
+    console.log('AuthStore: Initiating logout');
+    
+    // STEP 1: Immediately clear client state (synchronous)
+    set({ user: null, isAuthenticated: false, isLoading: false });
+    useCartStore.getState().clearCart();
+    localStorage.clear(); // Nuclear option - clears everything
+    
+    // STEP 2: Clear cookies (sync)
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c.replace(/^ +/, "").replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
+    });
+    
+    // STEP 3: Call logout API (don't wait for it, non-blocking)
+    apiClient.post(`${AUTH_ROUTE}/logout`).catch((err) => {
+      console.warn('Logout API failed, but client state already cleared', err);
+    });
+    
+    // STEP 4: Hard redirect (this kills all React state)
+    console.log('AuthStore: Redirecting to home');
+    window.location.href = '/';
   },
 
   checkAuth: async () => {
