@@ -11,14 +11,21 @@ const Login = () => {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const login = useAuthStore((state) => state.login);
+  const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   // Check for success message from registration
   useEffect(() => {
     if (location.state?.message) {
       setSuccessMessage(location.state.message);
-      // Clear the message from location state
       window.history.replaceState({}, document.title);
     }
   }, [location]);

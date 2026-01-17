@@ -16,8 +16,9 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0">
-            <span className="font-heading text-3xl text-primary font-bold">Jusas</span>
+          <Link to="/" className="flex-shrink-0 flex items-center gap-2">
+            <img src="/jusas-logo.png" alt="Jusas Logo" className="h-12 w-auto" />
+            <span className="font-heading text-2xl text-primary font-bold hidden sm:block">Jusas</span>
           </Link>
 
           {/* Desktop Menu */}
