@@ -72,37 +72,53 @@ const products = [
 async function main() {
   console.log('Start seeding...');
   
-  // 1. Clean up database
-  // Note: This wipes all user data. In a real production seed, you might want check existence first.
-  await prisma.orderItem.deleteMany();
-  await prisma.order.deleteMany();
-  await prisma.product.deleteMany();
-  await prisma.user.deleteMany();
-
-  // 2. Create Admin User
+  // 1. Create/Update Admin User (Safe Upsert)
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash('Admin123!', salt);
 
-  await prisma.user.create({
-    data: {
+  await prisma.user.upsert({
+    where: { email: 'admin@smoothie.local' },
+    update: {
+      password: hashedPassword,
+      name: 'Admin User',
+      role: 'admin'
+    },
+    create: {
       email: 'admin@smoothie.local',
       password: hashedPassword,
       name: 'Admin User',
-      role: 'admin' // Lowercase to match middleware auth check
+      role: 'admin'
     }
   });
 
-  console.log('Created admin user: admin@smoothie.local');
+  console.log('Upserted admin user: admin@smoothie.local');
 
-  // 3. Create products
+  // 2. Upsert products to avoid duplicates or deletion
   for (const p of products) {
-    const product = await prisma.product.create({
-      data: p,
-    });
-    console.log(`Created product with id: ${product.id}`);
+    // We assume name is unique for simplicity in finding, or we can't easily upsert without a unique field.
+    // If name isn't unique in schema, we'll try findFirst -> update or create.
+    // Ideally Product should have @unique on name or we use a known ID. 
+    // For this existing schema, let's just use create but check existence first to be safe, 
+    // or rely on a "soft" seed approach. 
+    // Better yet, let's check by name.
+    
+    const existing = await prisma.product.findFirst({ where: { name: p.name } });
+    
+    if (existing) {
+        await prisma.product.update({
+            where: { id: existing.id },
+            data: p
+        });
+        console.log(`Updated product: ${p.name}`);
+    } else {
+        const product = await prisma.product.create({
+            data: p
+        });
+        console.log(`Created product: ${p.name}`);
+    }
   }
 
-  console.log('Seeding finished.');
+  console.log('Seeding finished (Idempotent).');
 }
 
 main()
