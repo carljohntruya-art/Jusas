@@ -12,20 +12,12 @@ const apiClient = axios.create({
   },
 });
 
-// Add a response interceptor for global error handling
+// Add a response interceptor for global error handling (optional but recommended)
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    // 401 is expected when not logged in, handle silently for certain endpoints
-    if (error.response?.status === 401) {
-      if (error.config?.url?.includes('/auth/me')) {
-        // Silent fail for me check
-        return Promise.reject(error);
-      }
-    }
-    
-    // Log other errors for debugging
-    console.warn(`API Error [${error.config?.url}]:`, error.response?.data || error.message);
+    // Log the error for debugging
+    console.error(`API Error [${error.config?.url}]:`, error.response?.data || error.message);
     return Promise.reject(error);
   }
 );

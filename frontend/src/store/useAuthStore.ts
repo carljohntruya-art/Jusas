@@ -83,9 +83,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  checkAuth: async (retries = 2) => {
+  checkAuth: async () => {
     try {
-      console.log(`AuthStore: Checking auth... (Retries left: ${retries})`);
+      console.log('AuthStore: Checking auth...');
       const res = await apiClient.get(`${AUTH_ROUTE}/me`);
       console.log('AuthStore: Auth check success', res.data.user);
       const user = res.data.user;
@@ -94,14 +94,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       // If auth restored, sync cart
       useCartStore.getState().syncCart();
 
-    } catch (error: any) {
-       // Only retry on non-401 errors (transient network issues)
-       if (retries > 0 && error.response?.status !== 401) {
-          console.warn('AuthStore: Auth check failed due to transient error, retrying...', error.message);
-          return useAuthStore.getState().checkAuth(retries - 1);
-       }
-       
-       console.log('AuthStore: Auth check failed/Unauthorized', error.response?.status || error.message);
+    } catch (error) {
+       console.log('AuthStore: Auth check failed/clean', error);
        set({ user: null, isAuthenticated: false, isLoading: false });
     }
   }

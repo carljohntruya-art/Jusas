@@ -5,7 +5,6 @@ import { useState } from 'react';
 import apiClient from '../api/apiClient';
 import { ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { sanitizeImageUrl, PLACEHOLDER_IMAGE } from '../utils/imageUtils';
 
 interface ProductCardProps {
   product: {
@@ -25,7 +24,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { showToast } = useToastStore();
   const [loading, setLoading] = useState(false);
   const [localStock, setLocalStock] = useState(product.stock);
-  const [imgSrc, setImgSrc] = useState(sanitizeImageUrl(product.imageUrl));
 
   // Admin view: Stock controls
   const AdminStockControls = () => {
@@ -118,16 +116,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ y: -5 }}
-      className="bg-white rounded-3xl overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 border border-transparent hover:border-primary/20 flex flex-col h-full"
+      className="bg-white rounded-3xl overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 border border-transparent hover:border-primary/20 flex flex-col h-full" // Added h-full
     >
       <div className="relative aspect-video overflow-hidden group">
         <img 
-          src={imgSrc} 
+          src={product.imageUrl} 
           alt={product.name} 
-          onError={() => {
-            console.error(`Failed to load image for ${product.name}, falling back to placeholder`);
-            setImgSrc(PLACEHOLDER_IMAGE);
-          }}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         {product.isFeatured && (
