@@ -21,7 +21,7 @@ const OrderHistoryPage = () => {
     const fetchOrders = async () => {
         try {
             const res = await apiClient.get('/orders');
-            setOrders(res.data.orders);
+            setOrders(Array.isArray(res.data) ? res.data : []);
         } catch (error) {
             console.error(error);
             // Don't show toast on every poll fail, maybe just first time
