@@ -2,7 +2,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useCartStore } from '../store/useCartStore';
 import { useToastStore } from '../store/useToastStore';
 import { useState } from 'react';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 import { ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -31,7 +31,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       try {
         setLoading(true);
         const amount = 1;
-        const res = await axios.patch(`http://localhost:3000/api/products/${product.id}/stock`, {
+        const res = await apiClient.patch(`/products/${product.id}/stock`, {
           operation,
           amount
         });

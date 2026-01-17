@@ -52,3 +52,4 @@ pnpm-lock.yaml
 # Prisma
 backend/prisma/migrations/dev.db
 backend/prisma/migrations/dev.db-journal
+.vercel

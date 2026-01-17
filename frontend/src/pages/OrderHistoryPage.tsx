@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToastStore } from '../store/useToastStore';
 
@@ -20,7 +20,7 @@ const OrderHistoryPage = () => {
 
     const fetchOrders = async () => {
         try {
-            const res = await axios.get('http://localhost:3000/api/orders');
+            const res = await apiClient.get('/orders');
             setOrders(res.data.orders);
         } catch (error) {
             console.error(error);

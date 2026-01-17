@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import { Minus, Plus, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useCartStore } from '../store/useCartStore';
 import { useAuthStore } from '../store/useAuthStore';
+import apiClient from '../api/apiClient';
 import { motion } from 'framer-motion';
 
 interface Product {
@@ -25,13 +26,9 @@ const ProductDetails = () => {
   const addItem = useCartStore((state) => state.addItem);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/products/${id}`)
+    apiClient.get(`/products/${id}`)
       .then(res => {
-        if (!res.ok) throw new Error('Not found');
-        return res.json();
-      })
-      .then(data => {
-        setProduct(data);
+        setProduct(res.data);
         setLoading(false);
       })
       .catch(() => {

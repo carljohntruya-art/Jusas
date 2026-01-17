@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart } from 'lucide-react';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 import { Link } from 'react-router-dom';
 import { useCartStore } from '../store/useCartStore';
 
@@ -12,7 +12,7 @@ const FeaturedProducts = () => {
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/products?featured=true');
+        const res = await apiClient.get('/products?featured=true');
         setProducts(res.data);
       } catch (error) {
         console.error("Failed to fetch featured products", error);

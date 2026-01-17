@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 import { useAuthStore } from './useAuthStore';
 
-const API_URL = 'http://localhost:3000/api/cart';
+const API_ROUTE = '/cart';
 
 export interface CartItem {
   cartItemId?: number;
@@ -31,7 +31,7 @@ export const useCartStore = create<CartState>()(
       
       syncCart: async () => {
         try {
-          const res = await axios.get(API_URL, { withCredentials: true });
+          const res = await apiClient.get(API_ROUTE);
           // Map backend items to frontend format
           const backendItems = res.data.items.map((item: any) => ({
             cartItemId: item.id,
@@ -52,10 +52,10 @@ export const useCartStore = create<CartState>()(
         
         if (isAuthenticated) {
           try {
-            await axios.post(`${API_URL}/items`, {
+            await apiClient.post(`${API_ROUTE}/items`, {
               productId: newItem.productId,
               quantity: newItem.quantity
-            }, { withCredentials: true });
+            });
             await get().syncCart();
           } catch (error) {
            console.error('Failed to add item (server):', error);
@@ -87,7 +87,7 @@ export const useCartStore = create<CartState>()(
         if (isAuthenticated) {
             if (!item?.cartItemId) return; // Should have it if synced
             try {
-                await axios.delete(`${API_URL}/items/${item.cartItemId}`, { withCredentials: true });
+                await apiClient.delete(`${API_ROUTE}/items/${item.cartItemId}`);
                 await get().syncCart();
             } catch (error) {
                 console.error('Failed to remove item (server):', error);
@@ -104,7 +104,7 @@ export const useCartStore = create<CartState>()(
         if (isAuthenticated) {
             if (!item?.cartItemId) return;
             try {
-                 await axios.put(`${API_URL}/items/${item.cartItemId}`, { quantity }, { withCredentials: true });
+                 await apiClient.put(`${API_ROUTE}/items/${item.cartItemId}`, { quantity });
                  await get().syncCart();
             } catch (error) {
                 console.error('Failed to update quantity (server):', error);

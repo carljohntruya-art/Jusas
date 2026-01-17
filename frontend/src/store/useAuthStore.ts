@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 import { useCartStore } from './useCartStore';
 
 interface User {
@@ -19,10 +19,9 @@ interface AuthState {
   checkAuth: () => Promise<void>;
 }
 
-// Config Axios to allow cookies
-axios.defaults.withCredentials = true;
-const API_URL = 'http://localhost:3000/api/auth';
-const CART_API = 'http://localhost:3000/api/cart';
+// Routes
+const AUTH_ROUTE = '/auth';
+const CART_ROUTE = '/cart';
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
@@ -32,7 +31,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (email, password) => {
     try {
       console.log('AuthStore: Attempting login for', email);
-      const res = await axios.post(`${API_URL}/login`, { email, password });
+      const res = await apiClient.post(`${AUTH_ROUTE}/login`, { email, password });
       console.log('AuthStore: Login success, setting user', res.data.user);
       
       const user = res.data.user;
@@ -48,7 +47,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         }));
         
         try {
-            await axios.post(`${CART_API}/merge`, { guestCart }, { withCredentials: true });
+            await apiClient.post(`${CART_ROUTE}/merge`, { guestCart });
         } catch (mergeError) {
             console.error('Cart merge failed:', mergeError);
         }
@@ -65,7 +64,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   register: async (email, password, name) => {
     try {
-      const res = await axios.post(`${API_URL}/register`, { email, password, name });
+      const res = await apiClient.post(`${AUTH_ROUTE}/register`, { email, password, name });
       // DO NOT set user state - allow redirect to login
       return res.data;
     } catch (error) {
@@ -76,7 +75,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: async () => {
     try {
-      await axios.post(`${API_URL}/logout`);
+      await apiClient.post(`${AUTH_ROUTE}/logout`);
       set({ user: null, isAuthenticated: false });
       useCartStore.getState().clearCart(); // Clear sensitive user cart data
     } catch (error) {
@@ -87,7 +86,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   checkAuth: async () => {
     try {
       console.log('AuthStore: Checking auth...');
-      const res = await axios.get(`${API_URL}/me`);
+      const res = await apiClient.get(`${AUTH_ROUTE}/me`);
       console.log('AuthStore: Auth check success', res.data.user);
       const user = res.data.user;
       set({ user, isAuthenticated: true, isLoading: false });

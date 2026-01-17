@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { DollarSign, LayoutDashboard, Package, Plus, Edit, Trash2, Copy } from 'lucide-react';
 import ProductModal from '../components/ProductModal';
@@ -17,11 +17,11 @@ const AdminDashboard = () => {
 
     const fetchData = async () => {
         try {
-            const statsRes = await axios.get('http://localhost:3000/api/admin/stats');
+            const statsRes = await apiClient.get('/admin/stats');
             setStats(statsRes.data);
-            const ordersRes = await axios.get('http://localhost:3000/api/orders');
+            const ordersRes = await apiClient.get('/orders');
             setOrders(ordersRes.data);
-            const prodRes = await axios.get('http://localhost:3000/api/products');
+            const prodRes = await apiClient.get('/products');
             setProducts(prodRes.data);
         } catch (error) {
             console.error("Failed to load admin data", error);
@@ -47,7 +47,7 @@ const AdminDashboard = () => {
         }
 
         try {
-            await axios.put(`http://localhost:3000/api/orders/${id}/status`, { status, declineReason: reason });
+            await apiClient.put(`/orders/${id}/status`, { status, declineReason: reason });
             // Immediate update (optimistic)
             setOrders(orders.map(o => o.id === id ? { ...o, status, declineReason: reason } : o));
         } catch (error) {
@@ -69,7 +69,7 @@ const AdminDashboard = () => {
     const handleDeleteProduct = async (id: number) => {
         if (!confirm("Are you sure you want to delete this product?")) return;
         try {
-            await axios.delete(`http://localhost:3000/api/products/${id}`);
+            await apiClient.delete(`/products/${id}`);
             setProducts(products.filter(p => p.id !== id));
         } catch (error) {
             alert("Failed to delete product");
@@ -78,7 +78,7 @@ const AdminDashboard = () => {
 
     const handleDuplicateProduct = async (id: number) => {
         try {
-            const res = await axios.post(`http://localhost:3000/api/products/${id}/duplicate`);
+            const res = await apiClient.post(`/products/${id}/duplicate`);
             setProducts([...products, res.data]);
         } catch (error) {
             alert("Failed to duplicate product");
@@ -89,7 +89,7 @@ const AdminDashboard = () => {
         // Optimistic UI
         setProducts(products.map(p => p.id === id ? { ...p, isFeatured: !currentStatus } : p));
         try {
-            await axios.patch(`http://localhost:3000/api/products/${id}/feature`);
+            await apiClient.patch(`/products/${id}/feature`);
         } catch (error) {
             // Revert on error
             setProducts(products.map(p => p.id === id ? { ...p, isFeatured: currentStatus } : p));
@@ -100,10 +100,10 @@ const AdminDashboard = () => {
     const handleSaveProduct = async (data: any) => {
         try {
             if (editingProduct) {
-                const res = await axios.put(`http://localhost:3000/api/products/${editingProduct.id}`, data);
+                const res = await apiClient.put(`/products/${editingProduct.id}`, data);
                 setProducts(products.map(p => p.id === editingProduct.id ? res.data : p));
             } else {
-                const res = await axios.post(`http://localhost:3000/api/products`, data);
+                const res = await apiClient.post(`/products`, data);
                 setProducts([...products, res.data]);
             }
         } catch (error) {
@@ -219,7 +219,7 @@ const AdminDashboard = () => {
                                          <td className="p-4 text-sm">
                                             <span className="font-bold">{order.paymentMethod}</span>
                                             {order.paymentProof && (
-                                                <a href={`http://localhost:3000${order.paymentProof}`} target="_blank" className="block text-xs text-blue-500 underline mt-1">View Proof</a>
+                                                <a href={`${order.paymentProof}`} target="_blank" className="block text-xs text-blue-500 underline mt-1">View Proof</a>
                                             )}
                                          </td>
                                          <td className="p-4">

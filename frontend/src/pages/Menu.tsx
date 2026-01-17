@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import { Search } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
+import apiClient from '../api/apiClient';
 
 interface Product {
   id: number;
@@ -19,10 +20,9 @@ const Menu = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/products')
-      .then(res => res.json())
-      .then(data => {
-        setProducts(data);
+    apiClient.get('/products')
+      .then(res => {
+        setProducts(res.data);
         setLoading(false);
       })
       .catch(err => {

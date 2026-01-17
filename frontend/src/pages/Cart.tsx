@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToastStore } from '../store/useToastStore';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 
 const Cart = () => {
   const { items, removeItem, updateQuantity, total, clearCart, syncCart } = useCartStore(); // Deconstruct syncCart
@@ -41,7 +41,7 @@ const Cart = () => {
       formData.append('paymentProof', file);
       
       try {
-          const res = await axios.post('http://localhost:3000/api/upload', formData, {
+          const res = await apiClient.post('/upload', formData, {
               headers: { 'Content-Type': 'multipart/form-data' }
           });
           return res.data.fileUrl;
@@ -101,7 +101,7 @@ const Cart = () => {
             paymentProof: proofUrl || undefined
         };
 
-        const res = await axios.post('http://localhost:3000/api/orders', payload, { withCredentials: true });
+        const res = await apiClient.post('/orders', payload);
 
         showToast(`Order Placed Successfully! ID: ${res.data.id}`, 'success');
         clearCart();

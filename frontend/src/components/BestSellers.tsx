@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 import { Star } from 'lucide-react';
 
 const BestSellers = () => {
@@ -11,7 +11,7 @@ const BestSellers = () => {
         const fetchBestSellers = async () => {
             try {
                 // Fetch best sellers (backend sorts by totalSold)
-                const res = await axios.get('http://localhost:3000/api/products?bestseller=true');
+                const res = await apiClient.get('/products?bestseller=true');
                 setProducts(res.data.slice(0, 3)); // Top 3
             } catch (error) {
                 console.error("Failed to fetch best sellers");
