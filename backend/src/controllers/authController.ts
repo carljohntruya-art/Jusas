@@ -73,18 +73,21 @@ export const login = async (req: AuthRequest, res: Response) => {
         return;
     }
 
-    console.log('Backend: Login successful, generating token');
+    console.log(`Backend: Login successful for ${user.email}, generating token. Environment: ${process.env.NODE_ENV}`);
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
 
-    console.log('Backend: Setting token cookie', { 
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax'
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    console.log('Backend: Auth Cookie Configuration:', { 
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        env: process.env.NODE_ENV
     });
 
     res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
         maxAge: 24 * 60 * 60 * 1000,
         path: '/'
     });
