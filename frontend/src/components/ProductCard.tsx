@@ -115,14 +115,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ y: -5 }}
-      className="bg-white rounded-3xl overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 border border-transparent hover:border-primary/20 flex flex-col h-full" // Added h-full
+      whileHover={{ y: window.innerWidth >= 768 ? -5 : 0 }}
+      className="bg-white rounded-3xl overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 border border-transparent hover:border-primary/20 flex flex-col h-full"
     >
       <div className="relative aspect-video overflow-hidden group">
         <img 
           src={product.imageUrl} 
+          srcSet={`${product.imageUrl}?w=400 400w, ${product.imageUrl}?w=800 800w`}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           alt={product.name} 
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          loading="lazy"
+          decoding="async"
+          className="w-full h-full object-cover md:transition-transform md:duration-500 md:group-hover:scale-110"
         />
         {product.isFeatured && (
             <span className="absolute top-4 left-4 bg-accent text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">Featured</span>

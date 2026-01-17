@@ -75,27 +75,28 @@ const Navbar = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-background border-b border-secondary/20 overflow-hidden"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden bg-background border-b border-secondary/20"
           >
-            <div className="px-4 pt-2 pb-6 space-y-2">
-              <Link to="/" className="block py-3 text-lg font-medium text-text hover:text-primary">Home</Link>
-              <Link to="/menu" className="block py-3 text-lg font-medium text-text hover:text-primary">Menu</Link>
-              <Link to="/about" className="block py-3 text-lg font-medium text-text hover:text-primary">About</Link>
-              <div className="pt-4 flex items-center justify-between">
+            <div className="px-4 pt-2 pb-8 space-y-2">
+              <Link to="/" className="block py-3 text-lg font-medium text-text hover:text-primary min-h-[44px]">Home</Link>
+              <Link to="/menu" className="block py-3 text-lg font-medium text-text hover:text-primary min-h-[44px]">Menu</Link>
+              <Link to="/about" className="block py-3 text-lg font-medium text-text hover:text-primary min-h-[44px]">About</Link>
+              <div className="pt-4 pb-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               {user?.role !== 'admin' && (
-                <Link to="/cart" className="flex items-center text-text hover:text-primary">
+                <Link to="/cart" className="flex items-center justify-center text-text hover:text-primary min-h-[44px] px-4">
                    <ShoppingBag size={24} className="mr-2"/> Cart ({cartCount})
                 </Link>
               )}
                 {isAuthenticated ? (
-                    <button onClick={() => logout()} className="px-6 py-2 bg-secondary/10 text-text rounded-full font-medium">
+                    <button onClick={() => logout()} className="px-6 py-3 min-h-[44px] bg-secondary/10 text-text rounded-full font-medium">
                         Logout
                     </button>
                 ) : (
-                    <Link to="/login" className="px-6 py-2 bg-primary text-white rounded-full font-medium hover:bg-opacity-90">
+                    <Link to="/login" className="px-6 py-3 min-h-[44px] bg-primary text-white rounded-full font-medium hover:bg-opacity-90 text-center">
                       Login
                     </Link>
                 )}

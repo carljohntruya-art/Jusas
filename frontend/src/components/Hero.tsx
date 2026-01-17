@@ -16,7 +16,7 @@ const Hero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-5xl md:text-7xl font-heading font-bold text-text leading-tight"
+              className="text-4xl sm:text-5xl md:text-7xl font-heading font-bold text-text leading-tight"
             >
               Enjoy every sip of <span className="text-primary">Summer Crush</span>
             </motion.h1>
@@ -42,24 +42,29 @@ const Hero = () => {
 
           {/* Hero Image */}
           <motion.div 
-            initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ duration: 1, type: "spring" }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
             className="w-full md:w-1/2 relative"
           >
             <div className="relative w-full aspect-square max-w-lg mx-auto">
                {/* Placeholder for the main hero smoothie image */}
                <img 
-                 src="https://images.pexels.com/photos/103566/pexels-photo-103566.jpeg" 
+                 src="https://images.pexels.com/photos/103566/pexels-photo-103566.jpeg?auto=compress&cs=tinysrgb&w=800" 
+                 srcSet="https://images.pexels.com/photos/103566/pexels-photo-103566.jpeg?auto=compress&cs=tinysrgb&w=400 400w,
+                         https://images.pexels.com/photos/103566/pexels-photo-103566.jpeg?auto=compress&cs=tinysrgb&w=800 800w"
+                 sizes="(max-width: 640px) 100vw, 50vw"
                  alt="Delicious Smoothie" 
-                 className="w-full h-full object-cover rounded-3xl shadow-2xl rotate-3 hover:rotate-0 transition-all duration-500"
+                 loading="eager"
+                 decoding="async"
+                 className="w-full h-full object-cover rounded-3xl shadow-2xl md:rotate-3 md:hover:rotate-0 transition-all duration-500"
                />
                
-               {/* Floating elements (simulated) */}
+               {/* Floating elements - hidden on mobile for performance */}
                <motion.div 
                  animate={{ y: [0, -20, 0] }}
                  transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                 className="absolute -top-10 -right-10 bg-white/30 backdrop-blur-md p-4 rounded-xl shadow-lg border border-white/50"
+                 className="hidden md:block absolute -top-10 -right-10 bg-white/30 backdrop-blur-md p-4 rounded-xl shadow-lg border border-white/50"
                >
                  <span className="text-2xl">🍓</span>
                  <span className="font-bold text-text ml-2">Fresh</span>
