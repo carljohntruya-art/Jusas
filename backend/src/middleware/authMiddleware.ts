@@ -11,13 +11,20 @@ declare global {
 }
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
-  let token = req.cookies.token; // HttpOnly cookie
+  console.log('AuthMiddleware: Checking cookies', { 
+      hasCookies: !!req.cookies, 
+      cookieKeys: req.cookies ? Object.keys(req.cookies) : [],
+      hasToken: !!req.cookies?.token 
+  });
+  
+  let token = req.cookies?.token; // HttpOnly cookie
 
   if (!token && req.headers.authorization?.startsWith('Bearer ')) {
       token = req.headers.authorization.split(' ')[1];
   }
 
   if (!token) {
+    console.log('AuthMiddleware: No token found, denying access');
     res.status(401).json({ error: 'Access denied' });
     return
   }

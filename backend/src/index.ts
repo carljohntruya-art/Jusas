@@ -11,18 +11,55 @@ const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', 1); // Trust Vercel proxy for secure cookies
+
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: [
+    'https://jusas-new.vercel.app',
+    'https://jusas.vercel.app',
+    'http://localhost:5173'
+  ],
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
 app.use(express.json());
 app.use(cookieParser());
 
-// Health Check
+// Health Check Endpoint
+// Health Check Endpoint
+app.get('/api/health', async (req: Request, res: Response) => {
+  try {
+    // Basic connectivity check with timeout
+    const dbCheck = await Promise.race([
+      prisma.$queryRaw`SELECT 1`,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Database timeout')), 5000))
+    ]);
+    
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      database: 'connected',
+      authConfigured: !!process.env.JWT_SECRET
+    });
+  } catch (error) {
+    console.error('Health check failed:', error);
+    res.status(503).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      database: 'disconnected',
+      error: error instanceof Error ? error.message : 'Unknown database error'
+    });
+  }
+});
+
+// For Vercel hosting, we want to allow the root to show something friendly
 app.get('/', (req, res) => {
-  res.json({ message: 'Jusas Tropical Smoothie API is running 🌴' });
+  res.json({ message: 'Jusas Tropical Smoothie API is running 🌴', health: '/api/health' });
 });
 
 import productRoutes from './routes/productRoutes';

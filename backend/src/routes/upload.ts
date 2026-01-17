@@ -5,9 +5,9 @@ import fs from 'fs';
 
 const router = express.Router();
 
-// Ensure uploads directory exists
+// Ensure uploads directory exists (Only in local development)
 const uploadDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadDir)) {
+if (process.env.NODE_ENV !== 'production' && !fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 

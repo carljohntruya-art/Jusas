@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -71,19 +72,29 @@ const products = [
 async function main() {
   console.log('Start seeding...');
   
-  // Create default admin
-  // Password: adminpassword123 (hashed needs to be generated in real app, here we might need bcrypt to hash it runtime or use pre-hashed)
-  // For simplicity in seed, we'll rely on the app to hash, or we can use a hardcoded hash.
-  // Let's use a placeholder hash for now or try to import bcrypt if available.
-  // Since we can't easily rely on bcrypt in seed without typescript compiling it first sometimes, we'll try standard import.
-  
-  // Delete existing
+  // 1. Clean up database
+  // Note: This wipes all user data. In a real production seed, you might want check existence first.
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
   await prisma.product.deleteMany();
   await prisma.user.deleteMany();
 
-  // Create products
+  // 2. Create Admin User
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash('Admin123!', salt);
+
+  await prisma.user.create({
+    data: {
+      email: 'admin@smoothie.local',
+      password: hashedPassword,
+      name: 'Admin User',
+      role: 'admin' // Lowercase to match middleware auth check
+    }
+  });
+
+  console.log('Created admin user: admin@smoothie.local');
+
+  // 3. Create products
   for (const p of products) {
     const product = await prisma.product.create({
       data: p,
