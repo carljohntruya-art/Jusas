@@ -85,7 +85,15 @@ const Navbar = () => {
               <Link to="/" className="block py-3 text-lg font-medium text-text hover:text-primary min-h-[44px]">Home</Link>
               <Link to="/menu" className="block py-3 text-lg font-medium text-text hover:text-primary min-h-[44px]">Menu</Link>
               <Link to="/about" className="block py-3 text-lg font-medium text-text hover:text-primary min-h-[44px]">About</Link>
-              <div className="pt-4 pb-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              
+              {/* Admin-only link on mobile */}
+              {user?.role === 'admin' && (
+                <Link to="/admin" className="block py-3 text-lg font-bold text-primary hover:text-primary/80 min-h-[44px] border-t border-secondary/20 mt-2 pt-4">
+                  Admin Dashboard
+                </Link>
+              )}
+              
+              <div className="pt-4 pb-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 border-t border-secondary/20">
               {user?.role !== 'admin' && (
                 <Link to="/cart" className="flex items-center justify-center text-text hover:text-primary min-h-[44px] px-4">
                    <ShoppingBag size={24} className="mr-2"/> Cart ({cartCount})

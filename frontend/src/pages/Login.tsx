@@ -3,6 +3,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { motion } from 'framer-motion';
+import { Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -37,9 +38,19 @@ const Login = () => {
     setSuccessMessage('');
     try {
       await login(email, password);
-      console.log('Login: Success, navigating to home');
-      // Check if we have a saved redirect path or default to home/menu
-      navigate('/'); 
+      console.log('Login: Success, checking role for redirect');
+      
+      // Get the logged-in user from the store to check their role
+      const { user } = useAuthStore.getState();
+      
+      // Admin users → /admin, regular users → /
+      if (user?.role === 'admin') {
+        console.log('Login: Admin user, redirecting to /admin');
+        navigate('/admin');
+      } else {
+        console.log('Login: Regular user, redirecting to /');
+        navigate('/');
+      }
     } catch (err: any) {
       console.error('Login: Error caught', err);
       setError(err.response?.data?.error || 'Login failed');
@@ -91,15 +102,16 @@ const Login = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-secondary/30 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                  className="w-full px-4 py-3 pr-12 rounded-xl border border-secondary/30 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   required
                 />
                 <button 
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-10 text-sm text-text/60 font-bold hover:text-primary"
+                    className="absolute right-3 top-[38px] p-2 text-text/60 hover:text-primary transition-colors"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                    {showPassword ? "HIDE" : "SHOW"}
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
             </div>
 
