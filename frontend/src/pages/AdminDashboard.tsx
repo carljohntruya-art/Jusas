@@ -218,8 +218,20 @@ const AdminDashboard = () => {
                                          <td className="p-4">₱{order.total}</td>
                                          <td className="p-4 text-sm">
                                             <span className="font-bold">{order.paymentMethod}</span>
+                                            {/* ✅ FIX #6: Payment Proof Preview */}
                                             {order.paymentProof && (
-                                                <a href={`${order.paymentProof}`} target="_blank" className="block text-xs text-blue-500 underline mt-1">View Proof</a>
+                                                <div className="mt-2">
+                                                    <img 
+                                                        src={order.paymentProof} 
+                                                        alt="Payment Proof" 
+                                                        className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200 cursor-pointer hover:opacity-80 transition"
+                                                        onClick={() => window.open(order.paymentProof, '_blank')}
+                                                        title="Click to enlarge"
+                                                    />
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        {new Date(order.createdAt).toLocaleString()}
+                                                    </p>
+                                                </div>
                                             )}
                                          </td>
                                          <td className="p-4">

@@ -6,6 +6,7 @@ import { useToastStore } from '../store/useToastStore';
 
 const OrderHistoryPage = () => {
     const [orders, setOrders] = useState<any[]>([]);
+    const [previousOrders, setPreviousOrders] = useState<any[]>([]); // ✅ FIX #4: Track previous state
     const [loading, setLoading] = useState(true);
     const { user } = useAuthStore();
     const { showToast } = useToastStore();
@@ -17,6 +18,29 @@ const OrderHistoryPage = () => {
             return () => clearInterval(interval);
         }
     }, [user]);
+
+    // ✅ FIX #4: Detect status changes and notify
+    useEffect(() => {
+        if (orders.length > 0 && previousOrders.length > 0) {
+            orders.forEach((order) => {
+                const prevOrder = previousOrders.find(p => p.id === order.id);
+                
+                if (prevOrder && prevOrder.status !== order.status) {
+                    // Status changed!
+                    if (order.status === 'APPROVED') {
+                        showToast(`✅ Order #${order.id} has been approved!`, 'success');
+                    } else if (order.status === 'CANCELLED') {
+                        const reason = order.declineReason || 'No reason provided';
+                        showToast(`❌ Order #${order.id} declined: ${reason}`, 'error');
+                    } else if (order.status === 'DELIVERED') {
+                        showToast(`🚚 Order #${order.id} has been delivered!`, 'success');
+                    }
+                }
+            });
+        }
+        
+        setPreviousOrders(orders); // Update tracker
+    }, [orders]);
 
     const fetchOrders = async () => {
         try {

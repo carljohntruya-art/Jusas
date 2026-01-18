@@ -86,6 +86,13 @@ const Navbar = () => {
               <Link to="/menu" className="block py-3 text-lg font-medium text-text hover:text-primary min-h-[44px]">Menu</Link>
               <Link to="/about" className="block py-3 text-lg font-medium text-text hover:text-primary min-h-[44px]">About</Link>
               
+              {/* ✅ FIX #1: Order History for authenticated customers (mobile only) */}
+              {isAuthenticated && user?.role !== 'admin' && (
+                <Link to="/orders" className="block py-3 text-lg font-medium text-text hover:text-primary min-h-[44px]">
+                  My Orders
+                </Link>
+              )}
+              
               {/* Admin-only link on mobile */}
               {user?.role === 'admin' && (
                 <Link to="/admin" className="block py-3 text-lg font-bold text-primary hover:text-primary/80 min-h-[44px] border-t border-secondary/20 mt-2 pt-4">

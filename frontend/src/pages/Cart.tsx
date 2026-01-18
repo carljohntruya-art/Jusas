@@ -61,32 +61,42 @@ const Cart = () => {
         return;
     }
 
+    // ✅ FIX #3: GCash validation BEFORE starting checkout
+    if (paymentMethod === 'gcash' && !paymentProof) {
+      showToast("Please upload payment proof for GCash payment", 'error');
+      return;
+    }
+
+    if (paymentMethod === 'cod') {
+      if (!codDetails.address || !codDetails.contact) {
+        showToast("Please fill in all delivery details", 'error');
+        return;
+      }
+    }
+
     setLoading(true);
     try {
         let proofUrl = '';
 
         if (paymentMethod === 'gcash') {
-            if (!paymentProof) {
-                 showToast("Please upload payment proof", 'error');
-                 setLoading(false);
-                 return;
-            }
-            // Upload first
+            // Upload proof image
             setUploading(true);
             try {
-                proofUrl = await handleFileUpload(paymentProof);
+                proofUrl = await handleFileUpload(paymentProof!);
                 setUploading(false);
+                console.log('GCash proof uploaded:', proofUrl);
             } catch (err) {
-                showToast("Failed to upload proof. Please try again.", 'error');
+                showToast("Failed to upload payment proof. Please try again.", 'error');
                 setUploading(false);
                 setLoading(false);
                 return;
             }
-        } else {
-             if (!codDetails.address || !codDetails.contact) {
-                showToast("Please fill in all delivery details", 'error');
-                setLoading(false);
-                return;
+
+            // ✅ FIX #3: Verify upload succeeded
+            if (!proofUrl) {
+              showToast("Payment proof upload failed. Please try again.", 'error');
+              setLoading(false);
+              return;
             }
         }
 
@@ -95,19 +105,23 @@ const Cart = () => {
             total: finalTotal,
             paymentMethod: paymentMethod.toUpperCase(),
             userId: user?.id,
-            shippingAddress: paymentMethod === 'cod' ? codDetails.address : undefined,
-            contactNumber: paymentMethod === 'cod' ? codDetails.contact : undefined,
+            shippingAddress: paymentMethod === 'cod' ? codDetails.address : 'N/A',
+            contactNumber: paymentMethod === 'cod' ? codDetails.contact : 'N/A',
             deliveryTime: paymentMethod === 'cod' ? codDetails.deliveryTime : undefined,
-            paymentProof: proofUrl || undefined
+            paymentProof: paymentMethod === 'gcash' ? proofUrl : undefined
         };
 
+        console.log('Submitting order payload:', payload);
         const res = await apiClient.post('/orders', payload);
 
         showToast(`Order Placed Successfully! ID: ${res.data.id}`, 'success');
         clearCart();
         navigate('/orders'); // Redirect to history
-    } catch (error) {
-        showToast("Failed to place order. Please try again.", 'error');
+    } catch (error: any) {
+        // ✅ FIX #3: Better error messaging
+        const errorMsg = error.response?.data?.error || error.message || "Failed to place order";
+        console.error('Order creation failed:', error);
+        showToast(`Order failed: ${errorMsg}`, 'error');
     } finally {
         setLoading(false);
     }
@@ -226,7 +240,7 @@ const Cart = () => {
                                     </div>
                                     <div className="flex justify-between items-center">
                                         <span className="text-blue-600">GCash No:</span>
-                                        <span className="font-bold font-mono text-lg">0917-123-4567</span>
+                                        <span className="font-bold font-mono text-lg">09709257172</span>
                                     </div>
                                 </div>
 
